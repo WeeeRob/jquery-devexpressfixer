@@ -32,7 +32,7 @@ http://sam.zoy.org/wtfpl/COPYING for more details.
 
 	"use strict";
 
-	function beginCallback (s, e) {
+	function beginCallback(s, e) {
 		/// <summary>
 		/// Event handler for DevExpress code callbacks
 		/// </summary>
@@ -48,15 +48,42 @@ http://sam.zoy.org/wtfpl/COPYING for more details.
 			var $requestVerificationToken = $('input[name="__RequestVerificationToken"]', $form);
 			if ($requestVerificationToken.length !== 0) {
 				// Only need to supply the RequestVerificationToken if it's in a form and the field exists.
-				e.customArgs['__RequestVerificationToken'] = $requestVerificationToken.val();
+				// e.customArgs['__RequestVerificationToken'] = $requestVerificationToken.val();
+				e.customArgs.__RequestVerificationToken = $requestVerificationToken.val();
 			}
 		}
 	}
 
+	// These's should be all the MVC ones as of 31/08/2012 (well the ones mentioned in the documentation
+	// anyway. 
+	var allTypes = ['MVCxClientCalendar', 'MVCxClientCallbackPanel', 'MVCxClientChart', 'MVCxClientComboBox', 'MVCxClientDockPanel', 'MVCxClientFilterControl', 'MVCxClientGridView', 'MVCxClientHtmlEditor', 'MVCxClientListBox', 'MVCxClientNavBar', 'MVCxClientPageControl', 'MVCxClientPivotGrid', 'MVCxClientPopupControl', 'MVCxClientReportViewer', 'MVCxClientScheduler', 'MVCxClientTreeView', 'MVCxClientUploadControl'];
+	var typesToCheck;
+
+	function initTypesToCheck() {
+		typesToCheck = [];
+
+		for (var i = 0; i < allTypes.length; i++) {
+			if (typeof window[allTypes[i]] !== 'undefined') {
+				typesToCheck.push(window[allTypes[i]]);
+			}
+		}
+	}
+
+	function isDevExpressType(instance) {
+		for (var i = 0; i < typesToCheck.length; i++) {
+			if (instance instanceof typesToCheck[i]) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+
 	// No default options yet
 	// var defaultOpt = {};
 
-	$.devExpressFixer = function (options) {
+	$.devExpressFixer = function () { // options
 		/// <summary>
 		/// Simple jQuery plug-in to submit the RequestVerificationToken when using DevExpress clientside callbacks
 		/// </summary>
@@ -66,14 +93,18 @@ http://sam.zoy.org/wtfpl/COPYING for more details.
 		// No options yet
 		// options = $.extend({}, defaultOpt, options || {});
 		// TODO: This could be really slow, should we provide an optional list of the names of items we should fix?
+
+		initTypesToCheck();
+
 		for (var key in window) {
-			// Which other ones do we need to fix?
-			// TODO: Do we need to check for MVCxClientComboBox not being defined?
-			// TODO: Should we check at this stage if it's within a form
-			if (window[key] instanceof MVCxClientComboBox) {
-				// TODO: Do we need to check if the client API is enabled, would BeginCallback / AddHandler not exist
-				// if it didn't?
-				window[key].BeginCallback.AddHandler(beginCallback);
+			if (window.hasOwnProperty(key)) {
+				var devExpressObj = window[key];
+
+				if (isDevExpressType(devExpressObj)) {
+					// TODO: Do we need to check if the client API is enabled, would BeginCallback / AddHandler 
+					// not exist if it didn't?
+					devExpressObj.BeginCallback.AddHandler(beginCallback);
+				}
 			}
 		}
 	};

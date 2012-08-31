@@ -1,6 +1,6 @@
 # jquery-devexpressfixer #
 
-Version: 0.0.1a, Last updated: 29/08/2012
+Version: 0.0.1a, Last updated: 30/08/2012
 
 A plug-in to fix up the DevExpress controls callbacks so we can provide the request verificaiton token
 
