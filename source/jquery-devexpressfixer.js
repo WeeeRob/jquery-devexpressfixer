@@ -48,18 +48,17 @@ http://sam.zoy.org/wtfpl/COPYING for more details.
 			var $requestVerificationToken = $('input[name="__RequestVerificationToken"]', $form);
 			if ($requestVerificationToken.length !== 0) {
 				// Only need to supply the RequestVerificationToken if it's in a form and the field exists.
-				// e.customArgs['__RequestVerificationToken'] = $requestVerificationToken.val();
 				e.customArgs.__RequestVerificationToken = $requestVerificationToken.val();
 			}
 		}
 	}
 
-	// These's should be all the MVC ones as of 31/08/2012 (well the ones mentioned in the documentation
-	// anyway. 
-	var allTypes = ['MVCxClientCalendar', 'MVCxClientCallbackPanel', 'MVCxClientChart', 'MVCxClientComboBox', 'MVCxClientDockPanel', 'MVCxClientFilterControl', 'MVCxClientGridView', 'MVCxClientHtmlEditor', 'MVCxClientListBox', 'MVCxClientNavBar', 'MVCxClientPageControl', 'MVCxClientPivotGrid', 'MVCxClientPopupControl', 'MVCxClientReportViewer', 'MVCxClientScheduler', 'MVCxClientTreeView', 'MVCxClientUploadControl'];
+	// These should be all the MVC ones as of 31/08/2012 (well the ones mentioned in the documentation anyway). 
+	// NOTE: Are there any what won't have any client side API that we should remove? 
 	var typesToCheck;
 
 	function initTypesToCheck() {
+		var allTypes = ['MVCxClientCalendar', 'MVCxClientCallbackPanel', 'MVCxClientChart', 'MVCxClientComboBox', 'MVCxClientDockPanel', 'MVCxClientFilterControl', 'MVCxClientGridView', 'MVCxClientHtmlEditor', 'MVCxClientListBox', 'MVCxClientNavBar', 'MVCxClientPageControl', 'MVCxClientPivotGrid', 'MVCxClientPopupControl', 'MVCxClientReportViewer', 'MVCxClientScheduler', 'MVCxClientTreeView', 'MVCxClientUploadControl'];
 		typesToCheck = [];
 
 		for (var i = 0; i < allTypes.length; i++) {
@@ -79,31 +78,39 @@ http://sam.zoy.org/wtfpl/COPYING for more details.
 		return false;
 	}
 
+	function checkItem(devExpressObj) {
+		if (isDevExpressType(devExpressObj)) {
+			// TODO: Do we need to check if the client API is enabled, would BeginCallback / AddHandler 
+			// not exist if it didn't?
+			devExpressObj.BeginCallback.AddHandler(beginCallback);
+		}
+	}
 
-	// No default options yet
-	// var defaultOpt = {};
+	var defaultOpt = {
+		selector : null
+	};
 
-	$.devExpressFixer = function () { // options
+	$.devExpressFixer = function (options) {
 		/// <summary>
 		/// Simple jQuery plug-in to submit the RequestVerificationToken when using DevExpress clientside callbacks
 		/// </summary>
-		// /// <param name="options" type="object">
-		// /// Optional options object (unused presently)
-		// /// </param>
-		// No options yet
-		// options = $.extend({}, defaultOpt, options || {});
-		// TODO: This could be really slow, should we provide an optional list of the names of items we should fix?
+		/// <param name="options" type="object">
+		/// Optional options object
+		/// </param>
+		options = $.extend({}, defaultOpt, options || {});
 
 		initTypesToCheck();
 
-		for (var key in window) {
-			if (window.hasOwnProperty(key)) {
-				var devExpressObj = window[key];
-
-				if (isDevExpressType(devExpressObj)) {
-					// TODO: Do we need to check if the client API is enabled, would BeginCallback / AddHandler 
-					// not exist if it didn't?
-					devExpressObj.BeginCallback.AddHandler(beginCallback);
+		if (options.selector !== null) {
+			// TODO: Test this...
+			$(options.selector).each(function () {
+				checkItem(window[$(this).attr('id')]);
+			});
+		}
+		else {
+			for (var key in window) {
+				if (window.hasOwnProperty(key)) {
+					checkItem(window[key]);
 				}
 			}
 		}
