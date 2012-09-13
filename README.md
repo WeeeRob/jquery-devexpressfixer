@@ -12,8 +12,6 @@ TODO: Test functionality propertly
 
 TODO: Test on other browsers
 
-TODO: VS comments, references etc. 
-
 TODO: Set-up javascript unit testing environment (http://qunitjs.com/) see jQuery tests... https://github.com/jquery/jquery/tree/master/test/unit
 
 TODO: Help page, examples

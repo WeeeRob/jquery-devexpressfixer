@@ -1,4 +1,6 @@
-﻿/*jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:true, strict:true, undef:true, unused:true, curly:true, browser:true, devel:true, jquery:true, indent:4, maxerr:50 */
+﻿/// <reference path="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.8.1-vsdoc.js"/>
+
+/*jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:true, strict:true, undef:true, unused:true, curly:true, browser:true, devel:true, jquery:true, indent:4, maxerr:50 */
 /*
 jQuery DevExpressFixer: A plug-in to fix up the DevExpress controls callbacks so we can provide the request verificaiton token
 https://github.com/WeeeRob/jquery-devexpressfixer
@@ -29,6 +31,12 @@ http://sam.zoy.org/wtfpl/COPYING for more details.
 */
 
 (function ($) {
+	/// <summary>
+	/// Self executing function to give variable scope
+	/// </summary>
+	/// <param name="$" type="object">
+	/// jQuery
+	/// </param>
 
 	"use strict";
 
@@ -58,6 +66,9 @@ http://sam.zoy.org/wtfpl/COPYING for more details.
 	var typesToCheck;
 
 	function initTypesToCheck() {
+		/// <summary>
+		/// Initializes the typesToCheck array which contains all types used on the page
+		/// </summary>
 		var allTypes = ['MVCxClientCalendar', 'MVCxClientCallbackPanel', 'MVCxClientChart', 'MVCxClientComboBox', 'MVCxClientDockPanel', 'MVCxClientFilterControl', 'MVCxClientGridView', 'MVCxClientHtmlEditor', 'MVCxClientListBox', 'MVCxClientNavBar', 'MVCxClientPageControl', 'MVCxClientPivotGrid', 'MVCxClientPopupControl', 'MVCxClientReportViewer', 'MVCxClientScheduler', 'MVCxClientTreeView', 'MVCxClientUploadControl'];
 		typesToCheck = [];
 
@@ -69,6 +80,13 @@ http://sam.zoy.org/wtfpl/COPYING for more details.
 	}
 
 	function isDevExpressType(instance) {
+		/// <summary>
+		/// Checks if the type is an instance of a DevExpress client API
+		/// </summary>
+		/// <param name="instance" type="object">
+		/// Object to test if it's a DevExpress object
+		/// </param>
+		/// <returns type="boolean">True if it is a DevExpress type, false otherwise</returns>
 		for (var i = 0; i < typesToCheck.length; i++) {
 			if (instance instanceof typesToCheck[i]) {
 				return true;
@@ -79,6 +97,12 @@ http://sam.zoy.org/wtfpl/COPYING for more details.
 	}
 
 	function checkItem(devExpressObj) {
+		/// <summary>
+		/// Checks the item then attaches the callback handler if required
+		/// </summary>
+		/// <param name="instance" type="object">
+		/// Object to test if it's a DevExpress object
+		/// </param>
 		if (isDevExpressType(devExpressObj)) {
 			// TODO: Do we need to check if the client API is enabled, would BeginCallback / AddHandler 
 			// not exist if it didn't?
@@ -101,13 +125,15 @@ http://sam.zoy.org/wtfpl/COPYING for more details.
 
 		initTypesToCheck();
 
-		if (options.selector !== null) {
+		if ((options.selector !== null) && (options.selector !== '')) {
 			// TODO: Test this...
 			$(options.selector).each(function () {
+				// DevExpress stores the client side API instances as the ID of the main object
 				checkItem(window[$(this).attr('id')]);
 			});
 		}
 		else {
+			// This is likely to be slow so try and use a selector!
 			for (var key in window) {
 				if (window.hasOwnProperty(key)) {
 					checkItem(window[key]);
