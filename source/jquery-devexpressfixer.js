@@ -41,6 +41,12 @@ http://sam.zoy.org/wtfpl/COPYING for more details.
 
 	"use strict";
 
+	if (!String.prototype.endsWith) {
+		String.prototype.endsWith = function(suffix) {
+			return this.indexOf(suffix, this.length - suffix.length) !== -1;
+		};
+	}
+
 	function beginCallback(s, e) {
 		/// <summary>
 		/// Event handler for DevExpress code callbacks
@@ -72,9 +78,33 @@ http://sam.zoy.org/wtfpl/COPYING for more details.
 		/// <param name="e" type="MVCxClientBeginCallbackEventArgs">
 		/// Event object that gets passed through in the form
 		/// </param>
-		if (s.inputElement !== null) {
-			var $el = $(s.inputElement);
-			$(s.inputElement).trigger('change');
+		var inputElement = null;
+
+		if (s.inputElement === null) {
+			/*
+			if (s.name.endsWith('_DDD_C')) {
+				// It's a date so event fired on different elements, so do it manually
+				var relatedS = window[s.name.substring(0, s.name.length - 6)];
+				//inputElement = relatedS.inputElement;
+			}
+			else {
+				// console.log('Not sure what to do with ' + s.name);
+			}
+			*/
+			inputElement = $('input[name="' + s.name + '"]');
+		}
+		else {
+			inputElement = s.inputElement;
+		}
+
+		if (inputElement != null) {
+			$(inputElement).trigger('change');
+			//console.log('triggered change, val is ' + $(inputElement).val());
+			//console.log(inputElement);
+		}
+		else {
+			//console.log('Nothing to trigger change on ' + s.name);
+			//console.log(s);
 		}
 	}
 
@@ -116,7 +146,7 @@ http://sam.zoy.org/wtfpl/COPYING for more details.
 		return false;
 	}
 
-	function checkItem(devExpressObj) {
+	function checkItem(devExpressObj, id) {
 		/// <summary>
 		/// Checks the item then attaches the callback handler if required
 		/// </summary>
@@ -133,6 +163,9 @@ http://sam.zoy.org/wtfpl/COPYING for more details.
 			}
 			else if (typeof devExpressObj.ValueChanged !== 'undefined') {
 				devExpressObj.ValueChanged.AddHandler(valueChanged);
+			}
+			else {
+				// console.log('No value change handler for ' + id);
 			}
 		}
 	}
@@ -157,14 +190,14 @@ http://sam.zoy.org/wtfpl/COPYING for more details.
 			$(options.selector).each(function () {
 				// DevExpress stores the client side API instances as the ID of the main object
 				var id = $(this).attr('id');
-				checkItem(window[id]);
+				checkItem(window[id], id);
 			});
 		}
 		else {
 			// This is likely to be slow so try and use a selector!
 			for (var key in window) {
 				if (window.hasOwnProperty(key)) {
-					checkItem(window[key]);
+					checkItem(window[key], key);
 				}
 			}
 		}
