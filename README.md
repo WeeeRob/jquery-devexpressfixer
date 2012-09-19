@@ -6,6 +6,8 @@ A plug-in to fix up the DevExpress controls callbacks so we can provide the requ
 
 I have a problem with the DevExpress (http://www.devexpress.com/) MVC controls and enabling the MVC RequestVerificationToken everywhere in that DevExpress doesn't seem to think this is necessary. However with a bit of jiggerypokery it can be resolved so this plug-in does that for you. 
 
+Also it uses the client API to provide change events when elements are changed, for the hidden fields. 
+
 ## TODO ##
 
 TODO: Test functionality propertly

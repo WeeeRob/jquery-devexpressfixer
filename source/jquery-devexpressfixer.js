@@ -1,4 +1,5 @@
 ﻿/// <reference path="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.8.1-vsdoc.js"/>
+/// <reference path="ASPxScriptIntelliSense.js"/>
 
 /*jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:true, strict:true, undef:true, unused:true, curly:true, browser:true, devel:true, jquery:true, indent:4, maxerr:50 */
 /*
@@ -61,6 +62,22 @@ http://sam.zoy.org/wtfpl/COPYING for more details.
 		}
 	}
 
+	function valueChanged(s, e) {
+		/// <summary>
+		/// Event handler for DevExpress value changes
+		/// </summary>
+		/// <param name="s" type="object">
+		/// DevExpress clientside API object
+		/// </param>
+		/// <param name="e" type="MVCxClientBeginCallbackEventArgs">
+		/// Event object that gets passed through in the form
+		/// </param>
+		if (s.inputElement !== null) {
+			var $el = $(s.inputElement);
+			$(s.inputElement).trigger('change');
+		}
+	}
+
 	// These should be all the MVC ones as of 31/08/2012 (well the ones mentioned in the documentation anyway). 
 	// NOTE: Are there any what won't have any client side API that we should remove? 
 	var typesToCheck;
@@ -69,7 +86,10 @@ http://sam.zoy.org/wtfpl/COPYING for more details.
 		/// <summary>
 		/// Initializes the typesToCheck array which contains all types used on the page
 		/// </summary>
-		var allTypes = ['MVCxClientCalendar', 'MVCxClientCallbackPanel', 'MVCxClientChart', 'MVCxClientComboBox', 'MVCxClientDockPanel', 'MVCxClientFilterControl', 'MVCxClientGridView', 'MVCxClientHtmlEditor', 'MVCxClientListBox', 'MVCxClientNavBar', 'MVCxClientPageControl', 'MVCxClientPivotGrid', 'MVCxClientPopupControl', 'MVCxClientReportViewer', 'MVCxClientScheduler', 'MVCxClientTreeView', 'MVCxClientUploadControl'];
+		var allTypes = [
+			'MVCxClientCalendar', 'MVCxClientCallbackPanel', 'MVCxClientChart', 'MVCxClientComboBox', 'MVCxClientDockPanel', 'MVCxClientFilterControl', 'MVCxClientGridView', 'MVCxClientHtmlEditor', 'MVCxClientListBox', 'MVCxClientNavBar', 'MVCxClientPageControl', 'MVCxClientPivotGrid', 'MVCxClientPopupControl', 'MVCxClientReportViewer', 'MVCxClientScheduler', 'MVCxClientTreeView', 'MVCxClientUploadControl', 
+			'ASPxClientBinaryImage', 'ASPxClientButton', 'ASPxClientButtonEdit', 'ASPxClientCalendar', 'ASPxClientCaptcha', 'ASPxClientCheckBox', 'ASPxClientCheckBoxList', 'ASPxClientColorEdit', 'ASPxClientComboBox', 'ASPxClientDateEdit', 'ASPxClientDropDownEdit', 'ASPxClientEdit', 'ASPxClientFilterControl', 'ASPxClientHyperLink', 'ASPxClientImage', 'ASPxClientLabel', 'ASPxClientListBox', 'ASPxClientListEdit', 'ASPxClientListEditItem', 'ASPxClientMemo', 'ASPxClientProgressBar', 'ASPxClientRadioButton', 'ASPxClientRadioButtonList', 'ASPxClientSpinEdit', 'ASPxClientStaticEdit', 'ASPxClientTextBox', 'ASPxClientTextEdit', 'ASPxClientTimeEdit', 'ASPxClientTrackBar', 'ASPxClientValidationSummary'
+		];
 		typesToCheck = [];
 
 		for (var i = 0; i < allTypes.length; i++) {
@@ -104,9 +124,16 @@ http://sam.zoy.org/wtfpl/COPYING for more details.
 		/// Object to test if it's a DevExpress object
 		/// </param>
 		if (isDevExpressType(devExpressObj)) {
-			// TODO: Do we need to check if the client API is enabled, would BeginCallback / AddHandler 
-			// not exist if it didn't?
-			devExpressObj.BeginCallback.AddHandler(beginCallback);
+			if (typeof devExpressObj.BeginCallback !== 'undefined') {
+				devExpressObj.BeginCallback.AddHandler(beginCallback);
+			}
+
+			if (typeof devExpressObj.SelectedIndexChanged !== 'undefined') {
+				devExpressObj.SelectedIndexChanged.AddHandler(valueChanged);
+			}
+			else if (typeof devExpressObj.ValueChanged !== 'undefined') {
+				devExpressObj.ValueChanged.AddHandler(valueChanged);
+			}
 		}
 	}
 
@@ -129,7 +156,8 @@ http://sam.zoy.org/wtfpl/COPYING for more details.
 			// TODO: Test this...
 			$(options.selector).each(function () {
 				// DevExpress stores the client side API instances as the ID of the main object
-				checkItem(window[$(this).attr('id')]);
+				var id = $(this).attr('id');
+				checkItem(window[id]);
 			});
 		}
 		else {
