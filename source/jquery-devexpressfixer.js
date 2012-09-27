@@ -196,7 +196,7 @@ http://sam.zoy.org/wtfpl/COPYING for more details.
 		else {
 			// This is likely to be slow so try and use a selector!
 			for (var key in window) {
-				if (window.hasOwnProperty(key)) {
+				if (((!window.hasOwnProperty) && (Object.prototype.hasOwnProperty.call(window,key))) || (window.hasOwnProperty(key))) {
 					checkItem(window[key], key);
 				}
 			}
