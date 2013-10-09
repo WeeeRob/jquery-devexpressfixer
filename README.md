@@ -1,3 +1,5 @@
+TEST
+
 # jquery-devexpressfixer #
 
 Version: 0.0.1a, Last updated: 30/08/2012
